@@ -12,22 +12,22 @@ else  #linux?
 	# Lua 5.2.3 Copyright (C) 1994-2013 Lua.org, PUC-Rio
 	# $ lua -v |grep -o -E '5.[0-9]'
 	# 5.2
-	LUA_VER := $(shell lua -v | grep -o -E '5.[0-9]')
-	LUA_LOC := /usr/include/lua$(LUA_VER)
+	LUA_VER := $(shell ls /usr/include/ | grep lua5)
+	LUA_LOC := /usr/include/$(LUA_VER)
 	CXXFLAGS += -I$(LUA_LOC)
-	LDFLAGS := -llua$(LUA_VER) -ldl
+	LDFLAGS := -l$(LUA_VER) -ldl
 endif
 BIN := editor
 
-src_files := $(wildcard *.cpp)
-obj_files := $(patsubst %.cpp,%.o,$(src_files))
+src_files := $(wildcard src/*.cpp)
+obj_files := $(patsubst src/%.cpp,obj/%.o,$(src_files))
 
 .PHONY: all clean remake
 
 all: $(BIN)
 
 clean:
-	rm -f $(BIN) *.o
+	rm -f $(BIN) obj/*.o
 
 remake: clean all
 
@@ -35,5 +35,6 @@ remake: clean all
 $(BIN): $(obj_files)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
-%.o: %.cpp *.h
-	$(CXX) $(CXXFLAGS) -c -o $@ $(filter %.cpp,$^)
+obj/%.o: src/%.cpp src/*.h
+	$(CXX) $(CXXFLAGS) -c -o $@ $(filter src/%.cpp,$^)
+
